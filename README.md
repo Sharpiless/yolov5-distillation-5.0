@@ -22,7 +22,7 @@ python train.py --weights weights/yolov5s.pt \
 
 > --weights：预训练模型
 
-> --t_weights_：教师模型权重
+> --t_weights：教师模型权重
 
 > --distill：使用知识蒸馏进行训练
 
@@ -64,9 +64,9 @@ Teacher model：Yolov5l（mAP 0.5:0.95 = 0.541）
 
 这里假设VOC2012中新增加的数据为无标签数据（2k张）。
 
-| 原模型     | 教师模型    | VOC2007 | VOC2012 | mAP 0.5:0.95 |
+| 原模型     | 教师模型    | VOC2007 | VOC2012 | mAP 0.5 |
 |---------|---------|---------|---------|--------------|
-| Yolov5s | 无       | 原始标签    | 不使用     | 0.487        |
+| Yolov5s | 无       | 原始标签    | 不使用     | 0.761        |
 | Yolov5s | Yolov5l(l2) | 蒸馏训练    | 不使用     | 0.512        |
 | Yolov5s | Yolov5l(kl) | 蒸馏训练    | 不使用     |         |
 
