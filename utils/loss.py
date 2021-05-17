@@ -7,6 +7,7 @@ from utils.general import bbox_iou
 from utils.torch_utils import is_parallel
 import torch.nn.functional as F
 
+
 def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
     t_ft = torch.cuda.FloatTensor if t_p[0].is_cuda else torch.Tensor
     t_lcls, t_lbox, t_lobj = t_ft([0]), t_ft([0]), t_ft([0])
@@ -38,15 +39,14 @@ def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
         if model.nc > 1:  # cls loss (only if multiple classes)
             c_obj_scale = t_obj_scale.unsqueeze(-1).repeat(1,
                                                            1, 1, 1, model.nc)
-            # t_lcls += torch.mean(c_obj_scale * (pi[..., 5:] - t_pi[..., 5:]) ** 2)
             if dist_loss == "l2":
                 t_lcls += torch.mean(DclsLoss(pi[..., 5:],
-                                            t_pi[..., 5:]) * c_obj_scale)
+                                              t_pi[..., 5:]) * c_obj_scale)
             elif dist_loss == "kl":
                 kl_loss = DclsLoss(F.log_softmax(pi[..., 5:]/T, dim=-1),
-                                             F.softmax(t_pi[..., 5:]/T, dim=-1)) * (T * T)
+                                   F.softmax(t_pi[..., 5:]/T, dim=-1)) * (T * T)
                 t_lcls += torch.mean(kl_loss * c_obj_scale)
-        # t_lobj += torch.mean(t_obj_scale * (pi[..., 4] - t_pi[..., 4]) ** 2)
+
         t_lobj += torch.mean(DobjLoss(pi[..., 4], t_pi[..., 4]) * t_obj_scale)
     t_lbox *= h['giou'] * h['dist']
     t_lobj *= h['obj'] * h['dist']
