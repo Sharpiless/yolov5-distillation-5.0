@@ -72,6 +72,8 @@ Teacher model：Yolov5l（mAP 0.5:0.95 = 0.541）
 
 参数和细节正在完善，支持KL散度、L2 logits损失和Sigmoid蒸馏损失等
 
+## 1. 正常训练：
+![正常训练](https://github.com/Sharpiless/yolov5-distillation-5.0/blob/main/images/%E6%AD%A3%E5%B8%B8%E8%AE%AD%E7%BB%83.png)
 
 # 我的公众号：
 
