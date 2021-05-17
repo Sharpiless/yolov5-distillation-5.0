@@ -2,7 +2,6 @@
 
 [https://github.com/Sharpiless/yolov5-distillation-5.0](https://github.com/Sharpiless/yolov5-distillation-5.0)
 
-<a align="left" href="https://apps.apple.com/app/id1452689527" target="_blank">
 <img width="800" src="https://user-images.githubusercontent.com/26833433/98699617-a1595a00-2377-11eb-8145-fc674eb9b1a7.jpg"></a>
 
 # 教师模型权重：
@@ -26,6 +25,10 @@ python train.py --weights weights/yolov5s.pt \
 > --t_weights_：教师模型权重
 
 > --distill：使用知识蒸馏进行训练
+
+> --dist_loss：l2或者kl
+
+> --temperature：使用知识蒸馏时的温度
 
 
 使用[《Object detection at 200 Frames Per Second》](https://arxiv.org/pdf/1805.06361.pdf)中的损失
@@ -52,7 +55,7 @@ GPU：2080Ti*1
 
 Batch Size：8
 
-Epoches：50
+Epoches：100
 
 Baseline：Yolov5s
 
