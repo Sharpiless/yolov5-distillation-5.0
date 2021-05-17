@@ -273,7 +273,7 @@ def train(hyp, opt, device, tb_writer=None):
     scaler = amp.GradScaler(enabled=cuda)
     compute_loss = ComputeLoss(model)  # init loss class
     compute_dist_loss = ComputeDstillLoss(
-        model, temperature=opt.ComputeDstillLoss)
+        model, temperature=opt.temperature)
     logger.info(f'Image sizes {imgsz} train, {imgsz_test} test\n'
                 f'Using {dataloader.num_workers} dataloader workers\n'
                 f'Logging results to {save_dir}\n'
@@ -350,12 +350,12 @@ def train(hyp, opt, device, tb_writer=None):
                 pred = model(imgs)  # forward
                 if opt.distill:
                     with torch.no_grad():
-                        targets = t_model(imgs)
+                        t_targets = t_model(imgs)
                 loss, loss_items = compute_loss(
                     pred, targets.to(device))  # loss scaled by batch_size
                 # distillation
                 if opt.distill:
-                    dloss = compute_dist_loss(pred, targets, opt.dist_loss)
+                    dloss = compute_dist_loss(pred, t_targets.to(device), opt.dist_loss)
                 else:
                     dloss = 0
                 loss += dloss
@@ -527,7 +527,7 @@ if __name__ == '__main__':
     parser.add_argument('--dist_loss', type=str,
                         default='l2', help='using kl/l2 loss in distillation')
     parser.add_argument('--temperature', type=int,
-                        default=20, help='temperature in distilling training')
+                        default=4, help='temperature in distilling training')
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
     parser.add_argument('--data', type=str,
                         default='data/coco128.yaml', help='data.yaml path')

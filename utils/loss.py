@@ -368,9 +368,9 @@ class ComputeDstillLoss:
                     t[range(n), tcls[i]] = self.cp
                     dloss += self.BCEcls(ps[:, 5:], t)  # BCE
                     if soft_loss == 'kl':
-                        lsoft += self.KlSoftmaxLoss(ps[:, 5:], tlogits[i])
+                        dloss += self.KlSoftmaxLoss(ps[:, 5:], tlogits[i])
                     elif soft_loss == 'l2':
-                        lsoft += self.L2Logits(ps[:, 5:], tlogits[i])
+                        dloss += self.L2Logits(ps[:, 5:], tlogits[i])
 
             obji = self.BCEobj(pi[..., 4], tobj)
             dloss += obji * self.balance[i]  # obj loss
@@ -382,7 +382,7 @@ class ComputeDstillLoss:
             self.balance = [x / self.balance[self.ssi] for x in self.balance]
         dloss *= self.distill_ratio
         bs = tobj.shape[0]  # batch size
-        return dloss
+        return dloss * bs
 
     def build_targets(self, p, targets):
         # Build targets for compute_loss(), input targets(image,class,x,y,w,h)

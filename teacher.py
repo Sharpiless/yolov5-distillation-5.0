@@ -18,7 +18,7 @@ class TeacherModel(object):
 
     def init_model(self, weights, device, batch_size, nc):
 
-        self.device = select_device(device, batch_size=batch_size)
+        self.device = device
 
         # load checkpoint
         ckpt = torch.load(weights, map_location=self.device)
@@ -32,7 +32,7 @@ class TeacherModel(object):
         self.stride = int(self.model.stride.max())
         self.nc = nc
 
-    def generate_batch_targets(self, imgs, tar_size=[640, 640]):
+    def __call__(self, imgs, tar_size=[640, 640]):
         targets = []
         with torch.no_grad():
             preds = self.model(imgs)[0]
