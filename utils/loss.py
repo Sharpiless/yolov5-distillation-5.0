@@ -23,7 +23,7 @@ def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
     elif dist_loss == "kl":
         DclsLoss = nn.KLDivLoss(reduction="none")
     else:
-        raise EOFError("-[ERROR] dist_loss must be in [kl, l2].")
+        DclsLoss = nn.BCEWithLogitsLoss(reduction="none")
     DobjLoss = nn.MSELoss(reduction="none")
     # per output
     for i, pi in enumerate(p):  # layer index, layer predictions
@@ -39,13 +39,13 @@ def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
         if model.nc > 1:  # cls loss (only if multiple classes)
             c_obj_scale = t_obj_scale.unsqueeze(-1).repeat(1,
                                                            1, 1, 1, model.nc)
-            if dist_loss == "l2":
-                t_lcls += torch.mean(DclsLoss(pi[..., 5:],
-                                              t_pi[..., 5:]) * c_obj_scale)
-            elif dist_loss == "kl":
+            if dist_loss == "kl":
                 kl_loss = DclsLoss(F.log_softmax(pi[..., 5:]/T, dim=-1),
                                    F.softmax(t_pi[..., 5:]/T, dim=-1)) * (T * T)
                 t_lcls += torch.mean(kl_loss * c_obj_scale)
+            else:
+                t_lcls += torch.mean(DclsLoss(pi[..., 5:],
+                                              t_pi[..., 5:]) * c_obj_scale)
 
         t_lobj += torch.mean(DobjLoss(pi[..., 4], t_pi[..., 4]) * t_obj_scale)
     t_lbox *= h['giou'] * h['dist']
