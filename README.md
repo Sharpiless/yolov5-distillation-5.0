@@ -67,14 +67,19 @@ Teacher model：Yolov5l（mAP 0.5:0.95 = 0.541）
 
 | 原模型     | 教师模型    | VOC2007 | VOC2012 | mAP 0.5 |
 |---------|---------|---------|---------|--------------|
-| Yolov5s | 无       | 原始标签    | 不使用     | 0.761        |
-| Yolov5s | Yolov5l(l2) | 蒸馏训练    | 不使用     | 0.512        |
+| Yolov5s | 无       | 原始标签    | 不使用     | 0.7609        |
+| Yolov5s | Yolov5l(l2) | 蒸馏训练    | 不使用     | 0.7644        |
 | Yolov5s | Yolov5l(kl) | 蒸馏训练    | 不使用     |         |
 
 参数和细节正在完善，支持KL散度、L2 logits损失和Sigmoid蒸馏损失等
 
 ## 1. 正常训练：
+
 ![正常训练](https://github.com/Sharpiless/yolov5-distillation-5.0/blob/main/images/%E6%AD%A3%E5%B8%B8%E8%AE%AD%E7%BB%83.png)
+
+## 2. L2蒸馏损失：
+
+![L2蒸馏损失](https://github.com/Sharpiless/yolov5-distillation-5.0/blob/main/images/l+l2.png)
 
 # 我的公众号：
 
