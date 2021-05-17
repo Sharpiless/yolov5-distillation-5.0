@@ -275,10 +275,12 @@ def train(hyp, opt, device, tb_writer=None):
     scheduler.last_epoch = start_epoch - 1  # do not move
     scaler = amp.GradScaler(enabled=cuda)
     compute_loss = ComputeLoss(model)  # init loss class
+    dist_loss = opt.dist_loss
     logger.info(f'Image sizes {imgsz} train, {imgsz_test} test\n'
                 f'Using {dataloader.num_workers} dataloader workers\n'
                 f'Logging results to {save_dir}\n'
-                f'Starting training for {epochs} epochs...')
+                f'Starting training for {epochs} epochs...\n'
+                f'Distillation loss type: {dist_loss}')
     # epoch ------------------------------------------------------------------
     for epoch in range(start_epoch, epochs):
         model.train()
@@ -357,7 +359,7 @@ def train(hyp, opt, device, tb_writer=None):
                 # distillation
                 if opt.distill:
                     dloss = compute_distillation_output_loss(
-                        pred, t_pred, model, opt.dist_loss, opt.temperature)
+                        pred, t_pred, model, dist_loss, opt.temperature)
                 else:
                     dloss = 0
                 loss += dloss
