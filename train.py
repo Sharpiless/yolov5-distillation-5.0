@@ -363,6 +363,7 @@ def train(hyp, opt, device, tb_writer=None):
                 else:
                     dloss = 0
                 loss += dloss
+                loss_items[-1] = loss
                 if rank != -1:
                     loss *= opt.world_size  # gradient averaged between devices in DDP mode
                 if opt.quad:
