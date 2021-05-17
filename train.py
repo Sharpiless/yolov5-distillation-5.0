@@ -357,7 +357,7 @@ def train(hyp, opt, device, tb_writer=None):
                 # distillation
                 if opt.distill:
                     dloss = compute_distillation_output_loss(
-                        pred, t_pred, model)
+                        pred, t_pred, model, opt.dist_loss, opt.temperature)
                 else:
                     dloss = 0
                 loss += dloss
@@ -526,6 +526,10 @@ if __name__ == '__main__':
                         default='yolov5s.pt', help='initial weights path')
     parser.add_argument('--t_weights', type=str,
                         default='yolov5l.pt', help='initial tweights path')
+    parser.add_argument('--dist_loss', type=str,
+                        default='l2', help='using kl/l2 loss in distillation')
+    parser.add_argument('--temperature', type=int,
+                        default=20, help='temperature in distilling training')
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
     parser.add_argument('--data', type=str,
                         default='data/coco128.yaml', help='data.yaml path')
@@ -596,6 +600,8 @@ if __name__ == '__main__':
     set_logging(opt.global_rank)
     if opt.global_rank in [-1, 0]:
         check_requirements(exclude=('pycocotools', 'thop'))
+
+    assert opt.dist_loss in ["kl", "l2"], "-[ERROR] dist_loss must be in [kl, l2]."
 
     # Resume
     wandb_run = check_wandb_resume(opt)
