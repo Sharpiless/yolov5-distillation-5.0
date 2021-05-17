@@ -15,7 +15,8 @@
 ```bash
 python train.py --weights weights/yolov5s.pt \
         --cfg models/yolov5s.yaml --data data/voc.yaml --epochs 50 \
-        --batch-size 8 --device 0 --hyp data/hyp.scratch.yaml
+        --batch-size 8 --device 0 --hyp data/hyp.scratch.yaml \
+        --t_weights yolov5l_voc.pt --distill
 ```
 
 # 训练参数:
