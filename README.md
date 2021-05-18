@@ -38,6 +38,8 @@ python train.py --weights weights/yolov5s.pt \
 
 ![](https://github.com/Sharpiless/Yolov5-distillation-train-inference/blob/main/data/images/full_loss.png)
 
+![](https://github.com/Sharpiless/Yolov5-distillation-train-inference/blob/main/data/images/all.png)
+
 # 准备数据集：
 
 默认会启用 data/voc.yaml 自动下载VOC数据集进行训练
