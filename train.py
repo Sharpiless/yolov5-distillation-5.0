@@ -34,6 +34,8 @@ from utils.plots import plot_images, plot_labels, plot_results, plot_evolution
 from utils.torch_utils import ModelEMA, select_device, intersect_dicts, torch_distributed_zero_first, is_parallel
 from utils.wandb_logging.wandb_utils import WandbLogger, check_wandb_resume
 
+from utils.autoanchor import check_anchors
+
 logger = logging.getLogger(__name__)
 
 
@@ -241,9 +243,23 @@ def train(hyp, opt, device, tb_writer=None):
                 plot_labels(labels, names, save_dir, loggers)
                 if tb_writer:
                     tb_writer.add_histogram('classes', c, 0)
-
+            if not opt.noautoanchor:
+                check_anchors(model)
             model.half().float()  # pre-reduce anchor precision
+            
+    if not opt.noautoanchor:
+        det = model.module.model[-1] if is_parallel(model) else model.model[-1]
+        s_anchors = det.anchors  # shape = (3, 3, 2)
+        t_det = t_model.module.model[-1] if is_parallel(
+            t_model) else t_model.model[-1]
+        t_anchors = t_det.anchors  # shape = (3, 3, 2)
 
+        reg_norm = torch.sqrt(t_anchors / s_anchors)
+    else:
+        reg_norm = None
+    print(reg_norm)
+
+    del det, t_det
     # DDP mode
     if cuda and rank != -1:
         model = DDP(model, device_ids=[opt.local_rank], output_device=opt.local_rank,
@@ -358,7 +374,7 @@ def train(hyp, opt, device, tb_writer=None):
                 # distillation
                 if opt.distill:
                     dloss = compute_distillation_output_loss(
-                        pred, t_pred, model, dist_loss, opt.temperature)
+                        pred, t_pred, model, dist_loss, opt.temperature, reg_norm)
                 else:
                     dloss = 0
                 loss += dloss
@@ -383,8 +399,8 @@ def train(hyp, opt, device, tb_writer=None):
             if rank in [-1, 0]:
                 mloss = (mloss * i + loss_items) / \
                     (i + 1)  # update mean losses
-                mdloss =(mdloss * i + dloss) / \
-                    (i + 1) 
+                mdloss = (mdloss * i + dloss) / \
+                    (i + 1)
                 mem = '%.3gG' % (torch.cuda.memory_reserved(
                 ) / 1E9 if torch.cuda.is_available() else 0)  # (GB)
                 s = ('%10s' * 2 + '%10.4g' * 6 + '%10.4g') % (
@@ -603,7 +619,8 @@ if __name__ == '__main__':
     if opt.global_rank in [-1, 0]:
         check_requirements(exclude=('pycocotools', 'thop'))
 
-    assert opt.dist_loss in ["kl", "l2"], "-[ERROR] dist_loss must be in [kl, l2]."
+    assert opt.dist_loss in [
+        "kl", "l2"], "-[ERROR] dist_loss must be in [kl, l2]."
 
     # Resume
     wandb_run = check_wandb_resume(opt)

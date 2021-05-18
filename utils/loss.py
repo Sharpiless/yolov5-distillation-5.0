@@ -8,7 +8,7 @@ from utils.torch_utils import is_parallel
 import torch.nn.functional as F
 
 
-def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
+def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20, reg_norm=None):
     t_ft = torch.cuda.FloatTensor if t_p[0].is_cuda else torch.Tensor
     t_lcls, t_lbox, t_lobj = t_ft([0]), t_ft([0]), t_ft([0])
     h = model.hyp  # hyperparameters
@@ -32,8 +32,15 @@ def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20):
 
         # BBox
         b_obj_scale = t_obj_scale.unsqueeze(-1).repeat(1, 1, 1, 1, 4)
-        t_lbox += torch.mean(DboxLoss(pi[..., :4],
-                                      t_pi[..., :4]) * b_obj_scale)
+        if reg_norm:
+            t_lbox += torch.mean(DboxLoss(pi[..., :4],
+                                        t_pi[..., :4]) * b_obj_scale)
+        else:
+            wh_norm_scale = reg_norm[i].unsqueeze(0).unsqueeze(-2).unsqueeze(-2)
+            t_lbox += torch.mean(DboxLoss(pi[..., :2],
+                                        t_pi[..., :2]) * b_obj_scale)
+            t_lbox += torch.mean(DboxLoss(pi[..., 2:4].sigmoid(),
+                                        t_pi[..., 2:4].sigmoid() * wh_norm_scale) * b_obj_scale)
 
         # Class
         if model.nc > 1:  # cls loss (only if multiple classes)
