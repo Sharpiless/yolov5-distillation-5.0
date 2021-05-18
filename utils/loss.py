@@ -37,8 +37,8 @@ def compute_distillation_output_loss(p, t_p, model, dist_loss="l2", T=20, reg_no
                                         t_pi[..., :4]) * b_obj_scale)
         else:
             wh_norm_scale = reg_norm[i].unsqueeze(0).unsqueeze(-2).unsqueeze(-2)
-            t_lbox += torch.mean(DboxLoss(pi[..., :2],
-                                        t_pi[..., :2]) * b_obj_scale)
+            t_lbox += torch.mean(DboxLoss(pi[..., :2].sigmoid(),
+                                        t_pi[..., :2].sigmoid()) * b_obj_scale)
             t_lbox += torch.mean(DboxLoss(pi[..., 2:4].sigmoid(),
                                         t_pi[..., 2:4].sigmoid() * wh_norm_scale) * b_obj_scale)
 

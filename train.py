@@ -253,7 +253,6 @@ def train(hyp, opt, device, tb_writer=None):
         t_det = t_model.module.model[-1] if is_parallel(
             t_model) else t_model.model[-1]
         t_anchors = t_det.anchors  # shape = (3, 3, 2)
-
         reg_norm = torch.sqrt(t_anchors / s_anchors)
     else:
         reg_norm = None
