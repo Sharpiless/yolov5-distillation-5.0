@@ -69,10 +69,11 @@ Teacher model：Yolov5l（mAP 0.5:0.95 = 0.541）
 |:----|:----|:----|:----|:----|:----|
 |无|正常训练|不使用|0.7756|0.7115|0.7609|
 |Yolov5l|output based|l2|0.7585|0.7198|0.7644|
-|Yolov5l|output based|KL|0|0|0|
-|Yolov5m|output based|l2|0|0|0|
-|Yolov5m|output based|KL|0|0|0|
+|Yolov5l|output based|KL|0.7417|0.7207|0.7536|
+|Yolov5m|output based|l2|0.7682|0.7436|0.7976|
+|Yolov5m|output based|KL|0.7731|0.7313|0.7931|
 
+![训练结果](https://github.com/Sharpiless/yolov5-distillation-5.0/blob/main/images/line.png)
 
 参数和细节正在完善，支持KL散度、L2 logits损失和Sigmoid蒸馏损失等
 
