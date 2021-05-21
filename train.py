@@ -254,11 +254,11 @@ def train(hyp, opt, device, tb_writer=None):
             t_model) else t_model.model[-1]
         t_anchors = t_det.anchors  # shape = (3, 3, 2)
         reg_norm = torch.sqrt(t_anchors / s_anchors)
+        del det, t_det
     else:
         reg_norm = None
     print(reg_norm)
-
-    del det, t_det
+    
     # DDP mode
     if cuda and rank != -1:
         model = DDP(model, device_ids=[opt.local_rank], output_device=opt.local_rank,
